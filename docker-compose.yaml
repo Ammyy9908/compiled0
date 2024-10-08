@@ -7,8 +7,19 @@ services:
     ports:
       - "5672:5672"   # RabbitMQ port
       - "15672:15672" # RabbitMQ management UI port
-
-
+    volumes:
+      - ./rabbitmq-data:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    command: >
+      bash -c "
+        rabbitmq-server &
+        sleep 10 &&
+        rabbitmqadmin declare queue name=executions &&
+        rabbitmqadmin declare queue name=submissions &&
+        wait
+      "
   redis:
     image: redis:alpine
     container_name: redis
